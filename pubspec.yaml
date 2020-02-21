@@ -1,6 +1,6 @@
 name: webview_media
 description: A Flutter plugin that provides a WebView widget on Android and iOS.
-version: 0.3.19+8
+version: 0.1.0
 homepage: https://github.com/sarbagyastha/webview_media
 
 environment:
