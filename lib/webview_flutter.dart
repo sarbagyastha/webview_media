@@ -141,6 +141,7 @@ class WebView extends StatefulWidget {
     Key key,
     this.onWebViewCreated,
     this.initialUrl,
+    this.initialData,
     this.javascriptMode = JavascriptMode.disabled,
     this.javascriptChannels,
     this.navigationDelegate,
@@ -154,6 +155,10 @@ class WebView extends StatefulWidget {
         AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
   })  : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
+        assert(
+            (initialData == null && initialUrl != null) ||
+                (initialData != null && initialUrl == null),
+            'either use initialData or initialUrl'),
         super(key: key);
 
   static WebViewPlatform _platform;
@@ -205,6 +210,9 @@ class WebView extends StatefulWidget {
 
   /// The initial URL to load.
   final String initialUrl;
+
+  /// The initial data to load.
+  final WebData initialData;
 
   /// Whether Javascript execution is enabled.
   final JavascriptMode javascriptMode;
@@ -379,6 +387,7 @@ class _WebViewState extends State<WebView> {
 CreationParams _creationParamsfromWidget(WebView widget) {
   return CreationParams(
     initialUrl: widget.initialUrl,
+    initialData: widget.initialData,
     webSettings: _webSettingsFromWidget(widget),
     javascriptChannelNames: _extractChannelNames(widget.javascriptChannels),
     userAgent: widget.userAgent,
