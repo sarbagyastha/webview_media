@@ -36,7 +36,7 @@ void main() {
   });
 
   testWidgets('Create WebView', (WidgetTester tester) async {
-    await tester.pumpWidget(const WebView());
+    await tester.pumpWidget(const WebView(initialUrl: '',));
   });
 
   testWidgets('Initial url', (WidgetTester tester) async {
@@ -769,6 +769,7 @@ void main() {
   group('debuggingEnabled', () {
     testWidgets('enable debugging', (WidgetTester tester) async {
       await tester.pumpWidget(const WebView(
+        initialUrl: '',
         debuggingEnabled: true,
       ));
 
@@ -779,7 +780,7 @@ void main() {
     });
 
     testWidgets('defaults to false', (WidgetTester tester) async {
-      await tester.pumpWidget(const WebView());
+      await tester.pumpWidget(const WebView(initialUrl: '',));
 
       final FakePlatformWebView platformWebView =
           fakePlatformViewsController.lastCreatedView;
