@@ -5,6 +5,7 @@
 package io.flutter.plugins.webviewflutter;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
+import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
