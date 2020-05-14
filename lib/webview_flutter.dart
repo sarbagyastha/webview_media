@@ -163,6 +163,10 @@ class WebView extends StatefulWidget {
 
   static WebViewPlatform _platform;
 
+  clearPlatform() {
+    _platform = null;
+  }
+
   /// Sets a custom [WebViewPlatform].
   ///
   /// This property can be set to use a custom platform implementation for WebViews.
@@ -338,7 +342,7 @@ class WebView extends StatefulWidget {
 }
 
 class _WebViewState extends State<WebView> {
-  final Completer<WebViewController> _controller = Completer<WebViewController>();
+  Completer<WebViewController> _controller = Completer<WebViewController>();
 
   _PlatformCallbacksHandler _platformCallbacksHandler;
 
@@ -368,6 +372,30 @@ class _WebViewState extends State<WebView> {
       _platformCallbacksHandler._widget = widget;
       controller._updateWidget(widget);
     });
+  }
+
+  @override
+  void deactivate() {
+    _removeAsyncReferences();
+
+    super.deactivate();
+  }
+
+  _removeAsyncReferences() async {
+    (await _controller.future).reload();
+    (await _controller.future).clearCache();
+    (await _controller.future)._webViewPlatformController.clearCache();
+    (await _controller.future)._platformCallbacksHandler._widget = null;
+    (await _controller.future).clearCache();
+    (await _controller.future)._widget = null;
+
+    _removeReferences();
+  }
+
+  _removeReferences() {
+    _controller = null;
+    _platformCallbacksHandler._widget = null;
+    widget.clearPlatform();
   }
 
   void _onWebViewPlatformCreated(WebViewPlatformController webViewPlatform) {
