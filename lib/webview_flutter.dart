@@ -383,10 +383,7 @@ class _WebViewState extends State<WebView> {
 
   _removeAsyncReferences() async {
     (await _controller.future).reload();
-    (await _controller.future).clearCache();
-    (await _controller.future)._webViewPlatformController.clearCache();
     (await _controller.future)._platformCallbacksHandler._widget = null;
-    (await _controller.future).clearCache();
     (await _controller.future)._widget = null;
 
     _removeReferences();
