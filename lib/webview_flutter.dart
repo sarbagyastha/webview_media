@@ -167,6 +167,10 @@ class WebView extends StatefulWidget {
     _platform = null;
   }
 
+  WebViewPlatform getCurrentPlatform() {
+    return platform;
+  }
+
   /// Sets a custom [WebViewPlatform].
   ///
   /// This property can be set to use a custom platform implementation for WebViews.
@@ -376,7 +380,9 @@ class _WebViewState extends State<WebView> {
 
   @override
   void deactivate() {
-    _removeAsyncReferences();
+    if (widget.getCurrentPlatform() is CupertinoWebView) {
+      _removeAsyncReferences();
+    }
 
     super.deactivate();
   }
@@ -385,6 +391,8 @@ class _WebViewState extends State<WebView> {
     (await _controller.future).reload();
     (await _controller.future)._platformCallbacksHandler._widget = null;
     (await _controller.future)._widget = null;
+    (await _controller.future).clearCache();
+    (await _controller.future)._webViewPlatformController.clearCache();
 
     _removeReferences();
   }
