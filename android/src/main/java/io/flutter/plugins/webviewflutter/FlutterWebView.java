@@ -161,6 +161,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       case "getTitle":
         getTitle(result);
         break;
+      case "pause":
+        onPause(result);
+        break;
+      case "resume":
+        onResume(result);
+        break;
       default:
         result.notImplemented();
     }
@@ -334,5 +340,17 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     methodChannel.setMethodCallHandler(null);
     webView.dispose();
     webView.destroy();
+  }
+
+  public void onPause(Result result) {
+    webView.pauseTimers();
+    webView.onPause();
+    result.success(null);
+  }
+
+  public void onResume(Result result) {
+    webView.resumeTimers();
+    webView.onResume();
+    result.success(null);
   }
 }

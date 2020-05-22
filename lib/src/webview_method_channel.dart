@@ -114,6 +114,12 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   Future<void> clearCache() => _channel.invokeMethod<void>("clearCache");
 
   @override
+  Future<void> pauseWebView() => _channel.invokeMethod<void>("pause");
+
+  @override
+  Future<void> resumeWebView() => _channel.invokeMethod<void>("resume");
+
+  @override
   Future<void> updateSettings(WebSettings settings) {
     final Map<String, dynamic> updatesMap = _webSettingsToMap(settings);
     if (updatesMap.isEmpty) {
