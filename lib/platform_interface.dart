@@ -278,6 +278,14 @@ abstract class WebViewPlatformController {
   Future<String> getTitle() {
     throw UnimplementedError("WebView getTitle is not implemented on the current platform");
   }
+
+  Future<void> pauseWebView() {
+    throw UnimplementedError("WebView pause is not implemented on the current platform");
+  }
+
+  Future<void> resumeWebView() {
+    throw UnimplementedError("WebView resume is not implemented on the current platform");
+  }
 }
 
 /// A single setting for configuring a WebViewPlatform which may be absent.

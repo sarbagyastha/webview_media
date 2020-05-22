@@ -345,7 +345,7 @@ class WebView extends StatefulWidget {
   State<StatefulWidget> createState() => _WebViewState();
 }
 
-class _WebViewState extends State<WebView> {
+class _WebViewState extends State<WebView> with WidgetsBindingObserver {
   Completer<WebViewController> _controller = Completer<WebViewController>();
 
   _PlatformCallbacksHandler _platformCallbacksHandler;
@@ -364,6 +364,7 @@ class _WebViewState extends State<WebView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _assertJavascriptChannelNamesAreUnique();
     _platformCallbacksHandler = _PlatformCallbacksHandler(widget);
   }
@@ -379,7 +380,33 @@ class _WebViewState extends State<WebView> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (widget.getCurrentPlatform() is CupertinoWebView) {
+      return;
+    }
+
+    if (state == AppLifecycleState.paused) {
+      _pauseWebView();
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      _resumeWebView();
+    }
+  }
+
+  _pauseWebView() async {
+    (await _controller.future)._webViewPlatformController.pauseWebView();
+  }
+
+  _resumeWebView() async {
+    (await _controller.future)._webViewPlatformController.resumeWebView();
+  }
+
+  @override
   void deactivate() {
+    WidgetsBinding.instance.removeObserver(this);
     if (widget.getCurrentPlatform() is CupertinoWebView) {
       _removeAsyncReferences();
     }
