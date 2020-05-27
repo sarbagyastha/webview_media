@@ -30,6 +30,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private final MethodChannel methodChannel;
   private final FlutterWebViewClient flutterWebViewClient;
   private final Handler platformThreadHandler;
+  private Activity activity;
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @SuppressWarnings("unchecked")
@@ -47,7 +48,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     
     Context activityContext = context;
     Context appContext = context.getApplicationContext();
-    if (appContext instanceof FlutterApplication) {
+    if (activity != null ) {
+      activityContext = activity;
+    } else if (appContext instanceof FlutterApplication) {
       Activity currentActivity = ((FlutterApplication) appContext).getCurrentActivity();
       if (currentActivity != null) {
         activityContext = currentActivity;
@@ -352,5 +355,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     webView.resumeTimers();
     webView.onResume();
     result.success(null);
+  }
+
+  public void setActivity(Activity activity) {
+    this.activity = activity;
   }
 }
