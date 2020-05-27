@@ -19,25 +19,22 @@ public final class WebViewFactory extends PlatformViewFactory {
   private Activity activity;
   private FlutterWebView flutterWebView;
 
-  WebViewFactory(BinaryMessenger messenger, View containerView) {
+  WebViewFactory(BinaryMessenger messenger, View containerView, Activity activity) {
     super(StandardMessageCodec.INSTANCE);
     this.messenger = messenger;
     this.containerView = containerView;
+    this.activity = activity;
   }
 
   public void setActivity(Activity activity) {
     this.activity = activity;
-    if (this.flutterWebView != null) {
-      flutterWebView.setActivity(activity);
-    }
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public PlatformView create(Context context, int id, Object args) {
     Map<String, Object> params = (Map<String, Object>) args;
-    flutterWebView = new FlutterWebView(context, messenger, id, params, containerView);
-    flutterWebView.setActivity(activity);
+    flutterWebView = new FlutterWebView(context, messenger, id, params, containerView, activity);
     return flutterWebView;
   }
 }

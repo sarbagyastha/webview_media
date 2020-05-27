@@ -30,16 +30,15 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private final MethodChannel methodChannel;
   private final FlutterWebViewClient flutterWebViewClient;
   private final Handler platformThreadHandler;
-  private Activity activity;
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @SuppressWarnings("unchecked")
   FlutterWebView(
-      final Context context,
-      BinaryMessenger messenger,
-      int id,
-      Map<String, Object> params,
-      View containerView) {
+          final Context context,
+          BinaryMessenger messenger,
+          int id,
+          Map<String, Object> params,
+          View containerView, Activity activity) {
 
     DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
     DisplayManager displayManager =
@@ -355,9 +354,5 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     webView.resumeTimers();
     webView.onResume();
     result.success(null);
-  }
-
-  public void setActivity(Activity activity) {
-    this.activity = activity;
   }
 }

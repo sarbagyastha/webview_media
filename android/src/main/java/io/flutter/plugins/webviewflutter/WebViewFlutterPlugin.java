@@ -47,8 +47,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
    * won't react to changes in activity or context, unlike {@link CameraPlugin}.
    */
   public static void registerWith(Registrar registrar) {
-    webViewFactory = new WebViewFactory(registrar.messenger(), registrar.view());
-    webViewFactory.setActivity(registrar.activity());
+    webViewFactory = new WebViewFactory(registrar.messenger(), registrar.view(), registrar.activity());
     registrar
         .platformViewRegistry()
         .registerViewFactory(
@@ -60,7 +59,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
     BinaryMessenger messenger = binding.getBinaryMessenger();
-    webViewFactory = new WebViewFactory(messenger, /*containerView=*/ null);
+    webViewFactory = new WebViewFactory(messenger, /*containerView=*/ null, null);
     binding
         .getFlutterEngine()
         .getPlatformViewsController()
