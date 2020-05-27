@@ -34,31 +34,21 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @SuppressWarnings("unchecked")
   FlutterWebView(
-          final Context context,
           BinaryMessenger messenger,
           int id,
           Map<String, Object> params,
-          View containerView, Activity activity) {
+          View containerView,
+          Activity activity) {
 
     DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
     DisplayManager displayManager =
-        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+        (DisplayManager) activity.getSystemService(Context.DISPLAY_SERVICE);
     displayListenerProxy.onPreWebViewInitialization(displayManager);
-    
-    Context activityContext = context;
-    Context appContext = context.getApplicationContext();
-    if (activity != null ) {
-      activityContext = activity;
-    } else if (appContext instanceof FlutterApplication) {
-      Activity currentActivity = ((FlutterApplication) appContext).getCurrentActivity();
-      if (currentActivity != null) {
-        activityContext = currentActivity;
-      }
-    }
-    webView = new InputAwareWebView(activityContext, containerView);
+
+    webView = new InputAwareWebView(activity, containerView);
     displayListenerProxy.onPostWebViewInitialization(displayManager);
 
-    platformThreadHandler = new Handler(context.getMainLooper());
+    platformThreadHandler = new Handler(activity.getMainLooper());
     // Allow local storage.
     webView.getSettings().setDomStorageEnabled(true);
     webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);

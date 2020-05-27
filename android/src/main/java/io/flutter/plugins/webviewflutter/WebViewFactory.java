@@ -34,7 +34,7 @@ public final class WebViewFactory extends PlatformViewFactory {
   @Override
   public PlatformView create(Context context, int id, Object args) {
     Map<String, Object> params = (Map<String, Object>) args;
-    flutterWebView = new FlutterWebView(context, messenger, id, params, containerView, activity);
+    flutterWebView = new FlutterWebView(messenger, id, params, containerView, activity);
     return flutterWebView;
   }
 }
