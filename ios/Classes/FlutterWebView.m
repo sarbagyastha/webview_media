@@ -38,20 +38,30 @@
 
 - (void)setFrame:(CGRect)frame {
   [super setFrame:frame];
-  self.scrollView.contentInset = UIEdgeInsetsZero;
-  // We don't want the contentInsets to be adjusted by iOS, flutter should always take control of
-  // webview's contentInsets.
-  // self.scrollView.contentInset = UIEdgeInsetsZero;
-  if (@available(iOS 11, *)) {
-    // Above iOS 11, adjust contentInset to compensate the adjustedContentInset so the sum will
-    // always be 0.
-    if (UIEdgeInsetsEqualToEdgeInsets(self.scrollView.adjustedContentInset, UIEdgeInsetsZero)) {
-      return;
+
+    self.scrollView.contentInset = UIEdgeInsetsZero;
+    // We don't want the contentInsets to be adjusted by iOS, flutter should always take control of
+    // webview's contentInsets.
+    // self.scrollView.contentInset = UIEdgeInsetsZero;
+
+    [self updateFrame];
+}
+
+- (void)updateFrame {
+    if (@available(iOS 11, *)) {
+        // Above iOS 11, adjust contentInset to compensate the adjustedContentInset so the sum will
+        // always be 0.
+        if (UIEdgeInsetsEqualToEdgeInsets(self.scrollView.adjustedContentInset, UIEdgeInsetsZero)) {
+            return;
+        }
+        UIEdgeInsets insetToAdjust = self.scrollView.adjustedContentInset;
+        self.scrollView.contentInset = UIEdgeInsetsMake(-insetToAdjust.top, -insetToAdjust.left,
+                                                        -insetToAdjust.bottom, -insetToAdjust.right);
     }
-    UIEdgeInsets insetToAdjust = self.scrollView.adjustedContentInset;
-    self.scrollView.contentInset = UIEdgeInsetsMake(-insetToAdjust.top, -insetToAdjust.left,
-                                                    -insetToAdjust.bottom, -insetToAdjust.right);
-  }
+}
+
+- (void)updateScrollPosition {
+    self.scrollView.bounds = self.bounds;
 }
 
 @end
@@ -107,6 +117,8 @@
         _webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
       }
     }
+      
+    [self configureNotificationCenterForKeyboard];
 
     [self applySettings:settings];
     // TODO(amirh): return an error if apply settings failed once it's possible to do so.
@@ -123,6 +135,32 @@
     }
   }
   return self;
+}
+
+- (void)configureNotificationCenterForKeyboard {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShown:)
+                                                 name:UIKeyboardWillShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardRemoved:)
+                                                 name:UIKeyboardDidHideNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillRemove:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)keyboardWillShown:(NSNotification*)aNotification {
+    [_webView updateScrollPosition];
+}
+
+- (void)keyboardRemoved:(NSNotification*)aNotification {
+    [_webView updateScrollPosition];
+}
+
+- (void)keyboardWillRemove:(NSNotification *)aNotification {
+    _webView.scrollView.contentInset = UIEdgeInsetsZero;
 }
 
 - (UIView*)view {
