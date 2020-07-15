@@ -163,6 +163,14 @@ class WebView extends StatefulWidget {
 
   static WebViewPlatform _platform;
 
+  clearPlatform() {
+    _platform = null;
+  }
+
+  WebViewPlatform getCurrentPlatform() {
+    return platform;
+  }
+
   /// Sets a custom [WebViewPlatform].
   ///
   /// This property can be set to use a custom platform implementation for WebViews.
@@ -337,8 +345,8 @@ class WebView extends StatefulWidget {
   State<StatefulWidget> createState() => _WebViewState();
 }
 
-class _WebViewState extends State<WebView> {
-  final Completer<WebViewController> _controller = Completer<WebViewController>();
+class _WebViewState extends State<WebView> with WidgetsBindingObserver {
+  Completer<WebViewController> _controller = Completer<WebViewController>();
 
   _PlatformCallbacksHandler _platformCallbacksHandler;
 
@@ -356,6 +364,7 @@ class _WebViewState extends State<WebView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _assertJavascriptChannelNamesAreUnique();
     _platformCallbacksHandler = _PlatformCallbacksHandler(widget);
   }
@@ -368,6 +377,57 @@ class _WebViewState extends State<WebView> {
       _platformCallbacksHandler._widget = widget;
       controller._updateWidget(widget);
     });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (widget.getCurrentPlatform() is CupertinoWebView) {
+      return;
+    }
+
+    if (state == AppLifecycleState.paused) {
+      _pauseWebView();
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      _resumeWebView();
+    }
+  }
+
+  _pauseWebView() async {
+    (await _controller.future)._webViewPlatformController.pauseWebView();
+  }
+
+  _resumeWebView() async {
+    (await _controller.future)._webViewPlatformController.resumeWebView();
+  }
+
+  @override
+  void deactivate() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (widget.getCurrentPlatform() is CupertinoWebView) {
+      _removeAsyncReferences();
+    }
+
+    super.deactivate();
+  }
+
+  _removeAsyncReferences() async {
+    (await _controller.future).reload();
+    (await _controller.future)._platformCallbacksHandler._widget = null;
+    (await _controller.future)._widget = null;
+    (await _controller.future).clearCache();
+    (await _controller.future)._webViewPlatformController.clearCache();
+
+    _removeReferences();
+  }
+
+  _removeReferences() {
+    _controller = null;
+    _platformCallbacksHandler._widget = null;
+    widget.clearPlatform();
   }
 
   void _onWebViewPlatformCreated(WebViewPlatformController webViewPlatform) {
