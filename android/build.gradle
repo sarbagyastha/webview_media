@@ -1,4 +1,4 @@
-group 'io.flutter.plugins.webviewflutter'
+group 'io.flutter.plugins.webviewfluttermedia'
 version '1.0-SNAPSHOT'
 
 buildscript {

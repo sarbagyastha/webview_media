@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.webviewflutter;
+package io.flutter.plugins.webviewfluttermedia;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -34,15 +34,14 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @SuppressWarnings("unchecked")
   FlutterWebView(
-          BinaryMessenger messenger,
-          int id,
-          Map<String, Object> params,
-          View containerView,
-          Activity activity) {
+      BinaryMessenger messenger,
+      int id,
+      Map<String, Object> params,
+      View containerView,
+      Activity activity) {
 
     DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
-    DisplayManager displayManager =
-        (DisplayManager) activity.getSystemService(Context.DISPLAY_SERVICE);
+    DisplayManager displayManager = (DisplayManager) activity.getSystemService(Context.DISPLAY_SERVICE);
     displayListenerProxy.onPreWebViewInitialization(displayManager);
 
     webView = new InputAwareWebView(activity, containerView);
@@ -164,7 +163,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     }
   }
 
-  private void loadData(MethodCall methodCall, Result result){
+  private void loadData(MethodCall methodCall, Result result) {
     Map<String, Object> request = (Map<String, Object>) methodCall.arguments;
     String data = (String) request.get("data");
     String baseUrl = (String) request.get("baseUrl");
@@ -275,8 +274,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         case "hasNavigationDelegate":
           final boolean hasNavigationDelegate = (boolean) settings.get(key);
 
-          final WebViewClient webViewClient =
-              flutterWebViewClient.createWebViewClient(hasNavigationDelegate);
+          final WebViewClient webViewClient = flutterWebViewClient.createWebViewClient(hasNavigationDelegate);
 
           webView.setWebViewClient(webViewClient);
           break;
@@ -310,7 +308,8 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   }
 
   private void updateAutoMediaPlaybackPolicy(int mode) {
-    // This is the index of the AutoMediaPlaybackPolicy enum, index 1 is always_allow, for all
+    // This is the index of the AutoMediaPlaybackPolicy enum, index 1 is
+    // always_allow, for all
     // other values we require a user gesture.
     boolean requireUserGesture = mode != 1;
     webView.getSettings().setMediaPlaybackRequiresUserGesture(requireUserGesture);
