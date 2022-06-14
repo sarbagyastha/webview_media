@@ -6,7 +6,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:webview_media/webview_flutter.dart';
+import 'package:webview_media/webview_flutter_media.dart';
 
 void main() => runApp(MaterialApp(home: WebViewExample()));
 
