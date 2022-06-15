@@ -5,7 +5,7 @@
 @import Flutter;
 @import OCMock;
 @import XCTest;
-@import webview_flutter;
+@import webview_flutter_media;
 
 static bool feq(CGFloat a, CGFloat b) { return fabs(b - a) < FLT_EPSILON; }
 
@@ -67,7 +67,7 @@ static bool feq(CGFloat a, CGFloat b) { return fabs(b - a) < FLT_EPSILON; }
 }
 
 - (void)testContentInsetsSumAlwaysZeroAfterSetFrame {
-  FLTWKWebView *webView = [[FLTWKWebView alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+  FLTWKWebViewMedia *webView = [[FLTWKWebViewMedia alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
   webView.scrollView.contentInset = UIEdgeInsetsMake(0, 0, 300, 0);
   XCTAssertFalse(UIEdgeInsetsEqualToEdgeInsets(webView.scrollView.contentInset, UIEdgeInsetsZero));
   webView.frame = CGRectMake(0, 0, 300, 200);

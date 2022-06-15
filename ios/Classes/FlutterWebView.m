@@ -34,7 +34,7 @@
 
 @end
 
-@implementation FLTWKWebView
+@implementation FLTWKWebViewMedia
 
 - (void)setFrame:(CGRect)frame {
   [super setFrame:frame];
@@ -67,7 +67,7 @@
 @end
 
 @implementation FLTWebViewController {
-  FLTWKWebView* _webView;
+  FLTWKWebViewMedia* _webView;
   int64_t _viewId;
   FlutterMethodChannel* _channel;
   NSString* _currentUrl;
@@ -102,7 +102,7 @@
     [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
                         inConfiguration:configuration];
 
-    _webView = [[FLTWKWebView alloc] initWithFrame:frame configuration:configuration];
+    _webView = [[FLTWKWebViewMedia alloc] initWithFrame:frame configuration:configuration];
     _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = _navigationDelegate;
