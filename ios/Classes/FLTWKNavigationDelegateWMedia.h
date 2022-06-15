@@ -7,9 +7,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FLTWKNavigationDelegate : NSObject <WKNavigationDelegate>
+@interface FLTWKNavigationDelegateWMedia : NSObject <WKNavigationDelegate>
 
-- (instancetype)initWithChannel:(FlutterMethodChannel*)channel;
+- (instancetype)initWithChannel:(FlutterMethodChannel *)channel;
 
 /**
  * Whether to delegate navigation decisions over the method channel.

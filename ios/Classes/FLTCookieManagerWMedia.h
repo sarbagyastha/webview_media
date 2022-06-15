@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FLTCookieManager : NSObject <FlutterPlugin>
+@interface FLTCookieManagerWMedia : NSObject <FlutterPlugin>
 
 @end
 

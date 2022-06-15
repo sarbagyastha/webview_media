@@ -915,7 +915,7 @@ class FakePlatformWebView {
     debuggingEnabled = params['settings']['debuggingEnabled'];
     userAgent = params['settings']['userAgent'];
     channel = MethodChannel(
-        'plugins.flutter.io/webview_$id', const StandardMethodCodec());
+        'plugins.flutter.io/webview_media_$id', const StandardMethodCodec());
     channel.setMockMethodCallHandler(onMethodCall);
   }
 

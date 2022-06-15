@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "FLTCookieManager.h"
+#import "FLTCookieManagerWMedia.h"
 
-@implementation FLTCookieManager {
+@implementation FLTCookieManagerWMedia {
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
-  FLTCookieManager *instance = [[FLTCookieManager alloc] init];
+  FLTCookieManagerWMedia *instance = [[FLTCookieManagerWMedia alloc] init];
 
   FlutterMethodChannel *channel =
       [FlutterMethodChannel methodChannelWithName:@"plugins.flutter.io/cookie_manager"

@@ -65,7 +65,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
     registrar
         .platformViewRegistry()
         .registerViewFactory(
-            "plugins.flutter.io/webview",
+            "plugins.flutter.io/webview_media",
             webViewFactory);
     new FlutterCookieManager(registrar.messenger());
   }
@@ -79,7 +79,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
         .getPlatformViewsController()
         .getRegistry()
         .registerViewFactory(
-            "plugins.flutter.io/webview", webViewFactory);
+            "plugins.flutter.io/webview_media", webViewFactory);
     flutterCookieManager = new FlutterCookieManager(messenger);
   }
 
