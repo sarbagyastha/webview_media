@@ -25,4 +25,4 @@ flutter:
         package: io.flutter.plugins.webviewfluttermedia
         pluginClass: WebViewFlutterPlugin
       ios:
-        pluginClass: FLTWebViewFlutterPlugin
+        pluginClass: FLTWebViewFlutterMediaPlugin

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "FLTWebViewFlutterPlugin.h"
+#import "FLTWebViewFlutterMediaPlugin.h"
 #import "FLTCookieManager.h"
 #import "FlutterWebView.h"
 
-@implementation FLTWebViewFlutterPlugin
+@implementation FLTWebViewFlutterMediaPlugin
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FLTWebViewFactory* webviewFactory =
