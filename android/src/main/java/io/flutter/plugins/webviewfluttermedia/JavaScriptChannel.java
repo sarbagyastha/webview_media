@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.webviewflutter;
+package io.flutter.plugins.webviewfluttermedia;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -11,10 +11,13 @@ import io.flutter.plugin.common.MethodChannel;
 import java.util.HashMap;
 
 /**
- * Added as a JavaScript interface to the WebView for any JavaScript channel that the Dart code sets
+ * Added as a JavaScript interface to the WebView for any JavaScript channel
+ * that the Dart code sets
  * up.
  *
- * <p>Exposes a single method named `postMessage` to JavaScript, which sends a message over a method
+ * <p>
+ * Exposes a single method named `postMessage` to JavaScript, which sends a
+ * message over a method
  * channel to the Dart code.
  */
 class JavaScriptChannel {
@@ -23,10 +26,13 @@ class JavaScriptChannel {
   private final Handler platformThreadHandler;
 
   /**
-   * @param methodChannel the Flutter WebView method channel to which JS messages are sent
-   * @param javaScriptChannelName the name of the JavaScript channel, this is sent over the method
-   *     channel with each message to let the Dart code know which JavaScript channel the message
-   *     was sent through
+   * @param methodChannel         the Flutter WebView method channel to which JS
+   *                              messages are sent
+   * @param javaScriptChannelName the name of the JavaScript channel, this is sent
+   *                              over the method
+   *                              channel with each message to let the Dart code
+   *                              know which JavaScript channel the message
+   *                              was sent through
    */
   JavaScriptChannel(
       MethodChannel methodChannel, String javaScriptChannelName, Handler platformThreadHandler) {
@@ -39,16 +45,15 @@ class JavaScriptChannel {
   @SuppressWarnings("unused")
   @JavascriptInterface
   public void postMessage(final String message) {
-    Runnable postMessageRunnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            HashMap<String, String> arguments = new HashMap<>();
-            arguments.put("channel", javaScriptChannelName);
-            arguments.put("message", message);
-            methodChannel.invokeMethod("javascriptChannelMessage", arguments);
-          }
-        };
+    Runnable postMessageRunnable = new Runnable() {
+      @Override
+      public void run() {
+        HashMap<String, String> arguments = new HashMap<>();
+        arguments.put("channel", javaScriptChannelName);
+        arguments.put("message", message);
+        methodChannel.invokeMethod("javascriptChannelMessage", arguments);
+      }
+    };
     if (platformThreadHandler.getLooper() == Looper.myLooper()) {
       postMessageRunnable.run();
     } else {

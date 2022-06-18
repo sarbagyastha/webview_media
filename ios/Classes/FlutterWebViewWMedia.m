@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "FlutterWebView.h"
-#import "FLTWKNavigationDelegate.h"
+#import "FlutterWebViewWMedia.h"
+#import "FLTWKNavigationDelegateWMedia.h"
 #import "JavaScriptChannelHandler.h"
 
-@implementation FLTWebViewFactory {
+@implementation FLTWebViewFactoryWMedia {
   NSObject<FlutterBinaryMessenger>* _messenger;
 }
 
@@ -25,7 +25,7 @@
 - (NSObject<FlutterPlatformView>*)createWithFrame:(CGRect)frame
                                    viewIdentifier:(int64_t)viewId
                                         arguments:(id _Nullable)args {
-  FLTWebViewController* webviewController = [[FLTWebViewController alloc] initWithFrame:frame
+  FLTWebViewControllerWMedia* webviewController = [[FLTWebViewControllerWMedia alloc] initWithFrame:frame
                                                                          viewIdentifier:viewId
                                                                               arguments:args
                                                                         binaryMessenger:_messenger];
@@ -34,7 +34,7 @@
 
 @end
 
-@implementation FLTWKWebView
+@implementation FLTWKWebViewMedia
 
 - (void)setFrame:(CGRect)frame {
   [super setFrame:frame];
@@ -66,14 +66,14 @@
 
 @end
 
-@implementation FLTWebViewController {
-  FLTWKWebView* _webView;
+@implementation FLTWebViewControllerWMedia {
+  FLTWKWebViewMedia* _webView;
   int64_t _viewId;
   FlutterMethodChannel* _channel;
   NSString* _currentUrl;
   // The set of registered JavaScript channel names.
   NSMutableSet* _javaScriptChannelNames;
-  FLTWKNavigationDelegate* _navigationDelegate;
+  FLTWKNavigationDelegateWMedia* _navigationDelegate;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -83,7 +83,7 @@
   if (self = [super init]) {
     _viewId = viewId;
 
-    NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_%lld", viewId];
+    NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_media_%lld", viewId];
     _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
     _javaScriptChannelNames = [[NSMutableSet alloc] init];
 
@@ -102,8 +102,8 @@
     [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
                         inConfiguration:configuration];
 
-    _webView = [[FLTWKWebView alloc] initWithFrame:frame configuration:configuration];
-    _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
+    _webView = [[FLTWKWebViewMedia alloc] initWithFrame:frame configuration:configuration];
+    _navigationDelegate = [[FLTWKNavigationDelegateWMedia alloc] initWithChannel:_channel];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = _navigationDelegate;
     __weak __typeof__(self) weakSelf = self;
