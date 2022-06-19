@@ -1,4 +1,4 @@
-package io.flutter.plugins.webviewflutterexample;
+package io.flutter.plugins.webviewfluttermediaexample;
 
 import androidx.test.rule.ActivityTestRule;
 import dev.flutter.plugins.e2e.FlutterRunner;

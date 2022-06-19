@@ -38,7 +38,7 @@ class AndroidWebView implements WebViewPlatform {
       onLongPress: () {},
       excludeFromSemantics: true,
       child: AndroidView(
-        viewType: 'plugins.flutter.io/webview',
+        viewType: 'plugins.flutter.io/webview_media',
         onPlatformViewCreated: (int id) {
           if (onWebViewPlatformCreated == null) {
             return;

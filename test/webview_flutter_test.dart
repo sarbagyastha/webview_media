@@ -11,7 +11,7 @@ import 'package:flutter/src/gestures/recognizer.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:webview_media/platform_interface.dart';
-import 'package:webview_media/webview_flutter.dart';
+import 'package:webview_media/webview_flutter_media.dart';
 
 typedef void VoidCallback();
 
@@ -36,7 +36,9 @@ void main() {
   });
 
   testWidgets('Create WebView', (WidgetTester tester) async {
-    await tester.pumpWidget(const WebView(initialUrl: '',));
+    await tester.pumpWidget(const WebView(
+      initialUrl: '',
+    ));
   });
 
   testWidgets('Initial url', (WidgetTester tester) async {
@@ -780,7 +782,9 @@ void main() {
     });
 
     testWidgets('defaults to false', (WidgetTester tester) async {
-      await tester.pumpWidget(const WebView(initialUrl: '',));
+      await tester.pumpWidget(const WebView(
+        initialUrl: '',
+      ));
 
       final FakePlatformWebView platformWebView =
           fakePlatformViewsController.lastCreatedView;
@@ -911,7 +915,7 @@ class FakePlatformWebView {
     debuggingEnabled = params['settings']['debuggingEnabled'];
     userAgent = params['settings']['userAgent'];
     channel = MethodChannel(
-        'plugins.flutter.io/webview_$id', const StandardMethodCodec());
+        'plugins.flutter.io/webview_media_$id', const StandardMethodCodec());
     channel.setMockMethodCallHandler(onMethodCall);
   }
 

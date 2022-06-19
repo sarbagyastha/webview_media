@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.webviewflutter;
+package io.flutter.plugins.webviewfluttermedia;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -70,8 +70,7 @@ class FlutterWebViewClient {
         return "unsupportedScheme";
     }
 
-    final String message =
-            String.format(Locale.getDefault(), "Could not find a string for errorCode: %d", errorCode);
+    final String message = String.format(Locale.getDefault(), "Could not find a string for errorCode: %d", errorCode);
     throw new IllegalArgumentException(message);
   }
 
@@ -82,17 +81,24 @@ class FlutterWebViewClient {
     }
     notifyOnNavigationRequest(
         request.getUrl().toString(), request.getRequestHeaders(), view, request.isForMainFrame());
-    // We must make a synchronous decision here whether to allow the navigation or not,
-    // if the Dart code has set a navigation delegate we want that delegate to decide whether
-    // to navigate or not, and as we cannot get a response from the Dart delegate synchronously we
-    // return true here to block the navigation, if the Dart delegate decides to allow the
+    // We must make a synchronous decision here whether to allow the navigation or
+    // not,
+    // if the Dart code has set a navigation delegate we want that delegate to
+    // decide whether
+    // to navigate or not, and as we cannot get a response from the Dart delegate
+    // synchronously we
+    // return true here to block the navigation, if the Dart delegate decides to
+    // allow the
     // navigation the plugin will later make an addition loadUrl call for this url.
     //
-    // Since we cannot call loadUrl for a subframe, we currently only allow the delegate to stop
-    // navigations that target the main frame, if the request is not for the main frame
+    // Since we cannot call loadUrl for a subframe, we currently only allow the
+    // delegate to stop
+    // navigations that target the main frame, if the request is not for the main
+    // frame
     // we just return false to allow the navigation.
     //
-    // For more details see: https://github.com/flutter/flutter/issues/25329#issuecomment-464863209
+    // For more details see:
+    // https://github.com/flutter/flutter/issues/25329#issuecomment-464863209
     return request.isForMainFrame();
   }
 
@@ -100,10 +106,14 @@ class FlutterWebViewClient {
     if (!hasNavigationDelegate) {
       return false;
     }
-    // This version of shouldOverrideUrlLoading is only invoked by the webview on devices with
-    // webview versions  earlier than 67(it is also invoked when hasNavigationDelegate is false).
-    // On these devices we cannot tell whether the navigation is targeted to the main frame or not.
-    // We proceed assuming that the navigation is targeted to the main frame. If the page had any
+    // This version of shouldOverrideUrlLoading is only invoked by the webview on
+    // devices with
+    // webview versions earlier than 67(it is also invoked when
+    // hasNavigationDelegate is false).
+    // On these devices we cannot tell whether the navigation is targeted to the
+    // main frame or not.
+    // We proceed assuming that the navigation is targeted to the main frame. If the
+    // page had any
     // frames they will be loaded in the main frame instead.
     Log.w(
         TAG,
@@ -179,21 +189,23 @@ class FlutterWebViewClient {
       @TargetApi(Build.VERSION_CODES.M)
       @Override
       public void onReceivedError(
-              WebView view, WebResourceRequest request, WebResourceError error) {
+          WebView view, WebResourceRequest request, WebResourceError error) {
         FlutterWebViewClient.this.onWebResourceError(
-                error.getErrorCode(), error.getDescription().toString());
+            error.getErrorCode(), error.getDescription().toString());
       }
 
       @Override
       public void onReceivedError(
-              WebView view, int errorCode, String description, String failingUrl) {
+          WebView view, int errorCode, String description, String failingUrl) {
         FlutterWebViewClient.this.onWebResourceError(errorCode, description);
       }
 
       @Override
       public void onUnhandledKeyEvent(WebView view, KeyEvent event) {
-        // Deliberately empty. Occasionally the webview will mark events as having failed to be
-        // handled even though they were handled. We don't want to propagate those as they're not
+        // Deliberately empty. Occasionally the webview will mark events as having
+        // failed to be
+        // handled even though they were handled. We don't want to propagate those as
+        // they're not
         // truly lost.
       }
     };
@@ -221,26 +233,29 @@ class FlutterWebViewClient {
         FlutterWebViewClient.this.onPageFinished(view, url);
       }
 
-      // This method is only called when the WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR feature is
+      // This method is only called when the WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR
+      // feature is
       // enabled. The deprecated method is called when a device doesn't support this.
       @SuppressLint("RequiresFeature")
       @Override
       public void onReceivedError(
-              WebView view, WebResourceRequest request, WebResourceErrorCompat error) {
+          WebView view, WebResourceRequest request, WebResourceErrorCompat error) {
         FlutterWebViewClient.this.onWebResourceError(
-                error.getErrorCode(), error.getDescription().toString());
+            error.getErrorCode(), error.getDescription().toString());
       }
 
       @Override
       public void onReceivedError(
-              WebView view, int errorCode, String description, String failingUrl) {
+          WebView view, int errorCode, String description, String failingUrl) {
         FlutterWebViewClient.this.onWebResourceError(errorCode, description);
       }
 
       @Override
       public void onUnhandledKeyEvent(WebView view, KeyEvent event) {
-        // Deliberately empty. Occasionally the webview will mark events as having failed to be
-        // handled even though they were handled. We don't want to propagate those as they're not
+        // Deliberately empty. Occasionally the webview will mark events as having
+        // failed to be
+        // handled even though they were handled. We don't want to propagate those as
+        // they're not
         // truly lost.
       }
     };

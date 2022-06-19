@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.webviewflutter;
+package io.flutter.plugins.webviewfluttermedia;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.view.View;
 import android.webkit.WebStorage;
 import android.webkit.WebViewClient;
+import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -32,25 +34,25 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
   @SuppressWarnings("unchecked")
   FlutterWebView(
-      final Context context,
       BinaryMessenger messenger,
       int id,
       Map<String, Object> params,
-      View containerView) {
+      View containerView,
+      Activity activity) {
 
     DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
-    DisplayManager displayManager =
-        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    DisplayManager displayManager = (DisplayManager) activity.getSystemService(Context.DISPLAY_SERVICE);
     displayListenerProxy.onPreWebViewInitialization(displayManager);
-    webView = new InputAwareWebView(context, containerView);
+
+    webView = new InputAwareWebView(activity, containerView);
     displayListenerProxy.onPostWebViewInitialization(displayManager);
 
-    platformThreadHandler = new Handler(context.getMainLooper());
+    platformThreadHandler = new Handler(activity.getMainLooper());
     // Allow local storage.
     webView.getSettings().setDomStorageEnabled(true);
     webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
-    methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
+    methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_media_" + id);
     methodChannel.setMethodCallHandler(this);
 
     flutterWebViewClient = new FlutterWebViewClient(methodChannel);
@@ -150,12 +152,18 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       case "getTitle":
         getTitle(result);
         break;
+      case "pause":
+        onPause(result);
+        break;
+      case "resume":
+        onResume(result);
+        break;
       default:
         result.notImplemented();
     }
   }
 
-  private void loadData(MethodCall methodCall, Result result){
+  private void loadData(MethodCall methodCall, Result result) {
     Map<String, Object> request = (Map<String, Object>) methodCall.arguments;
     String data = (String) request.get("data");
     String baseUrl = (String) request.get("baseUrl");
@@ -266,8 +274,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         case "hasNavigationDelegate":
           final boolean hasNavigationDelegate = (boolean) settings.get(key);
 
-          final WebViewClient webViewClient =
-              flutterWebViewClient.createWebViewClient(hasNavigationDelegate);
+          final WebViewClient webViewClient = flutterWebViewClient.createWebViewClient(hasNavigationDelegate);
 
           webView.setWebViewClient(webViewClient);
           break;
@@ -301,7 +308,8 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   }
 
   private void updateAutoMediaPlaybackPolicy(int mode) {
-    // This is the index of the AutoMediaPlaybackPolicy enum, index 1 is always_allow, for all
+    // This is the index of the AutoMediaPlaybackPolicy enum, index 1 is
+    // always_allow, for all
     // other values we require a user gesture.
     boolean requireUserGesture = mode != 1;
     webView.getSettings().setMediaPlaybackRequiresUserGesture(requireUserGesture);
@@ -323,5 +331,17 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     methodChannel.setMethodCallHandler(null);
     webView.dispose();
     webView.destroy();
+  }
+
+  public void onPause(Result result) {
+    webView.pauseTimers();
+    webView.onPause();
+    result.success(null);
+  }
+
+  public void onResume(Result result) {
+    webView.resumeTimers();
+    webView.onResume();
+    result.success(null);
   }
 }

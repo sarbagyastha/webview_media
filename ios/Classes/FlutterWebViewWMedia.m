@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "FlutterWebView.h"
-#import "FLTWKNavigationDelegate.h"
+#import "FlutterWebViewWMedia.h"
+#import "FLTWKNavigationDelegateWMedia.h"
 #import "JavaScriptChannelHandler.h"
 
-@implementation FLTWebViewFactory {
+@implementation FLTWebViewFactoryWMedia {
   NSObject<FlutterBinaryMessenger>* _messenger;
 }
 
@@ -25,7 +25,7 @@
 - (NSObject<FlutterPlatformView>*)createWithFrame:(CGRect)frame
                                    viewIdentifier:(int64_t)viewId
                                         arguments:(id _Nullable)args {
-  FLTWebViewController* webviewController = [[FLTWebViewController alloc] initWithFrame:frame
+  FLTWebViewControllerWMedia* webviewController = [[FLTWebViewControllerWMedia alloc] initWithFrame:frame
                                                                          viewIdentifier:viewId
                                                                               arguments:args
                                                                         binaryMessenger:_messenger];
@@ -34,36 +34,46 @@
 
 @end
 
-@implementation FLTWKWebView
+@implementation FLTWKWebViewMedia
 
 - (void)setFrame:(CGRect)frame {
   [super setFrame:frame];
-  self.scrollView.contentInset = UIEdgeInsetsZero;
-  // We don't want the contentInsets to be adjusted by iOS, flutter should always take control of
-  // webview's contentInsets.
-  // self.scrollView.contentInset = UIEdgeInsetsZero;
-  if (@available(iOS 11, *)) {
-    // Above iOS 11, adjust contentInset to compensate the adjustedContentInset so the sum will
-    // always be 0.
-    if (UIEdgeInsetsEqualToEdgeInsets(self.scrollView.adjustedContentInset, UIEdgeInsetsZero)) {
-      return;
+
+    self.scrollView.contentInset = UIEdgeInsetsZero;
+    // We don't want the contentInsets to be adjusted by iOS, flutter should always take control of
+    // webview's contentInsets.
+    // self.scrollView.contentInset = UIEdgeInsetsZero;
+
+    [self updateFrame];
+}
+
+- (void)updateFrame {
+    if (@available(iOS 11, *)) {
+        // Above iOS 11, adjust contentInset to compensate the adjustedContentInset so the sum will
+        // always be 0.
+        if (UIEdgeInsetsEqualToEdgeInsets(self.scrollView.adjustedContentInset, UIEdgeInsetsZero)) {
+            return;
+        }
+        UIEdgeInsets insetToAdjust = self.scrollView.adjustedContentInset;
+        self.scrollView.contentInset = UIEdgeInsetsMake(-insetToAdjust.top, -insetToAdjust.left,
+                                                        -insetToAdjust.bottom, -insetToAdjust.right);
     }
-    UIEdgeInsets insetToAdjust = self.scrollView.adjustedContentInset;
-    self.scrollView.contentInset = UIEdgeInsetsMake(-insetToAdjust.top, -insetToAdjust.left,
-                                                    -insetToAdjust.bottom, -insetToAdjust.right);
-  }
+}
+
+- (void)updateScrollPosition {
+    self.scrollView.bounds = self.bounds;
 }
 
 @end
 
-@implementation FLTWebViewController {
-  FLTWKWebView* _webView;
+@implementation FLTWebViewControllerWMedia {
+  FLTWKWebViewMedia* _webView;
   int64_t _viewId;
   FlutterMethodChannel* _channel;
   NSString* _currentUrl;
   // The set of registered JavaScript channel names.
   NSMutableSet* _javaScriptChannelNames;
-  FLTWKNavigationDelegate* _navigationDelegate;
+  FLTWKNavigationDelegateWMedia* _navigationDelegate;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -73,7 +83,7 @@
   if (self = [super init]) {
     _viewId = viewId;
 
-    NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_%lld", viewId];
+    NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_media_%lld", viewId];
     _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
     _javaScriptChannelNames = [[NSMutableSet alloc] init];
 
@@ -92,8 +102,8 @@
     [self updateAutoMediaPlaybackPolicy:args[@"autoMediaPlaybackPolicy"]
                         inConfiguration:configuration];
 
-    _webView = [[FLTWKWebView alloc] initWithFrame:frame configuration:configuration];
-    _navigationDelegate = [[FLTWKNavigationDelegate alloc] initWithChannel:_channel];
+    _webView = [[FLTWKWebViewMedia alloc] initWithFrame:frame configuration:configuration];
+    _navigationDelegate = [[FLTWKNavigationDelegateWMedia alloc] initWithChannel:_channel];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = _navigationDelegate;
     __weak __typeof__(self) weakSelf = self;
@@ -107,6 +117,8 @@
         _webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
       }
     }
+      
+    [self configureNotificationCenterForKeyboard];
 
     [self applySettings:settings];
     // TODO(amirh): return an error if apply settings failed once it's possible to do so.
@@ -123,6 +135,32 @@
     }
   }
   return self;
+}
+
+- (void)configureNotificationCenterForKeyboard {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShown:)
+                                                 name:UIKeyboardWillShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardRemoved:)
+                                                 name:UIKeyboardDidHideNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillRemove:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)keyboardWillShown:(NSNotification*)aNotification {
+    [_webView updateScrollPosition];
+}
+
+- (void)keyboardRemoved:(NSNotification*)aNotification {
+    [_webView updateScrollPosition];
+}
+
+- (void)keyboardWillRemove:(NSNotification *)aNotification {
+    _webView.scrollView.contentInset = UIEdgeInsetsZero;
 }
 
 - (UIView*)view {

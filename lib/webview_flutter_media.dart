@@ -70,7 +70,8 @@ enum NavigationDecision {
 /// `navigation` should be handled.
 ///
 /// See also: [WebView.navigationDelegate].
-typedef FutureOr<NavigationDecision> NavigationDelegate(NavigationRequest navigation);
+typedef FutureOr<NavigationDecision> NavigationDelegate(
+    NavigationRequest navigation);
 
 /// Signature for when a [WebView] has started loading a page.
 typedef void PageStartedCallback(String url);
@@ -154,14 +155,25 @@ class WebView extends StatefulWidget {
     this.debuggingEnabled = false,
     this.gestureNavigationEnabled = false,
     this.userAgent,
-    this.initialMediaPlaybackPolicy = AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
+    this.initialMediaPlaybackPolicy =
+        AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
   })  : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
-        assert((initialData == null && initialUrl != null) || (initialData != null && initialUrl == null),
+        assert(
+            (initialData == null && initialUrl != null) ||
+                (initialData != null && initialUrl == null),
             'either use initialData or initialUrl'),
         super(key: key);
 
   static WebViewPlatform _platform;
+
+  clearPlatform() {
+    _platform = null;
+  }
+
+  WebViewPlatform getCurrentPlatform() {
+    return platform;
+  }
 
   /// Sets a custom [WebViewPlatform].
   ///
@@ -337,8 +349,8 @@ class WebView extends StatefulWidget {
   State<StatefulWidget> createState() => _WebViewState();
 }
 
-class _WebViewState extends State<WebView> {
-  final Completer<WebViewController> _controller = Completer<WebViewController>();
+class _WebViewState extends State<WebView> with WidgetsBindingObserver {
+  Completer<WebViewController> _controller = Completer<WebViewController>();
 
   _PlatformCallbacksHandler _platformCallbacksHandler;
 
@@ -356,6 +368,7 @@ class _WebViewState extends State<WebView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _assertJavascriptChannelNamesAreUnique();
     _platformCallbacksHandler = _PlatformCallbacksHandler(widget);
   }
@@ -370,8 +383,60 @@ class _WebViewState extends State<WebView> {
     });
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (widget.getCurrentPlatform() is CupertinoWebView) {
+      return;
+    }
+
+    if (state == AppLifecycleState.paused) {
+      _pauseWebView();
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      _resumeWebView();
+    }
+  }
+
+  _pauseWebView() async {
+    (await _controller.future)._webViewPlatformController.pauseWebView();
+  }
+
+  _resumeWebView() async {
+    (await _controller.future)._webViewPlatformController.resumeWebView();
+  }
+
+  @override
+  void deactivate() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (widget.getCurrentPlatform() is CupertinoWebView) {
+      _removeAsyncReferences();
+    }
+
+    super.deactivate();
+  }
+
+  _removeAsyncReferences() async {
+    (await _controller.future).reload();
+    (await _controller.future)._platformCallbacksHandler._widget = null;
+    (await _controller.future)._widget = null;
+    (await _controller.future).clearCache();
+    (await _controller.future)._webViewPlatformController.clearCache();
+
+    _removeReferences();
+  }
+
+  _removeReferences() {
+    _controller = null;
+    _platformCallbacksHandler._widget = null;
+    widget.clearPlatform();
+  }
+
   void _onWebViewPlatformCreated(WebViewPlatformController webViewPlatform) {
-    final WebViewController controller = WebViewController._(widget, webViewPlatform, _platformCallbacksHandler);
+    final WebViewController controller =
+        WebViewController._(widget, webViewPlatform, _platformCallbacksHandler);
     _controller.complete(controller);
     if (widget.onWebViewCreated != null) {
       widget.onWebViewCreated(controller);
@@ -379,10 +444,12 @@ class _WebViewState extends State<WebView> {
   }
 
   void _assertJavascriptChannelNamesAreUnique() {
-    if (widget.javascriptChannels == null || widget.javascriptChannels.isEmpty) {
+    if (widget.javascriptChannels == null ||
+        widget.javascriptChannels.isEmpty) {
       return;
     }
-    assert(_extractChannelNames(widget.javascriptChannels).length == widget.javascriptChannels.length);
+    assert(_extractChannelNames(widget.javascriptChannels).length ==
+        widget.javascriptChannels.length);
   }
 }
 
@@ -408,7 +475,8 @@ WebSettings _webSettingsFromWidget(WebView widget) {
 }
 
 // This method assumes that no fields in `currentValue` are null.
-WebSettings _clearUnchangedWebSettings(WebSettings currentValue, WebSettings newValue) {
+WebSettings _clearUnchangedWebSettings(
+    WebSettings currentValue, WebSettings newValue) {
   assert(currentValue.javascriptMode != null);
   assert(currentValue.hasNavigationDelegate != null);
   assert(currentValue.debuggingEnabled != null);
@@ -460,7 +528,8 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   WebView _widget;
 
   // Maps a channel name to a channel.
-  final Map<String, JavascriptChannel> _javascriptChannels = <String, JavascriptChannel>{};
+  final Map<String, JavascriptChannel> _javascriptChannels =
+      <String, JavascriptChannel>{};
 
   @override
   void onJavaScriptChannelMessage(String channel, String message) {
@@ -469,9 +538,11 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
 
   @override
   FutureOr<bool> onNavigationRequest({String url, bool isForMainFrame}) async {
-    final NavigationRequest request = NavigationRequest._(url: url, isForMainFrame: isForMainFrame);
-    final bool allowNavigation =
-        _widget.navigationDelegate == null || await _widget.navigationDelegate(request) == NavigationDecision.navigate;
+    final NavigationRequest request =
+        NavigationRequest._(url: url, isForMainFrame: isForMainFrame);
+    final bool allowNavigation = _widget.navigationDelegate == null ||
+        await _widget.navigationDelegate(request) ==
+            NavigationDecision.navigate;
     return allowNavigation;
   }
 
@@ -633,18 +704,24 @@ class WebViewController {
   }
 
   Future<void> _updateSettings(WebSettings newSettings) {
-    final WebSettings update = _clearUnchangedWebSettings(_settings, newSettings);
+    final WebSettings update =
+        _clearUnchangedWebSettings(_settings, newSettings);
     _settings = newSettings;
     return _webViewPlatformController.updateSettings(update);
   }
 
-  Future<void> _updateJavascriptChannels(Set<JavascriptChannel> newChannels) async {
-    final Set<String> currentChannels = _platformCallbacksHandler._javascriptChannels.keys.toSet();
+  Future<void> _updateJavascriptChannels(
+      Set<JavascriptChannel> newChannels) async {
+    final Set<String> currentChannels =
+        _platformCallbacksHandler._javascriptChannels.keys.toSet();
     final Set<String> newChannelNames = _extractChannelNames(newChannels);
-    final Set<String> channelsToAdd = newChannelNames.difference(currentChannels);
-    final Set<String> channelsToRemove = currentChannels.difference(newChannelNames);
+    final Set<String> channelsToAdd =
+        newChannelNames.difference(currentChannels);
+    final Set<String> channelsToRemove =
+        currentChannels.difference(newChannelNames);
     if (channelsToRemove.isNotEmpty) {
-      await _webViewPlatformController.removeJavascriptChannels(channelsToRemove);
+      await _webViewPlatformController
+          .removeJavascriptChannels(channelsToRemove);
     }
     if (channelsToAdd.isNotEmpty) {
       await _webViewPlatformController.addJavascriptChannels(channelsToAdd);
@@ -670,10 +747,12 @@ class WebViewController {
   /// embedded in the main frame HTML has been loaded.
   Future<String> evaluateJavascript(String javascriptString) {
     if (_settings.javascriptMode == JavascriptMode.disabled) {
-      return Future<String>.error(FlutterError('JavaScript mode must be enabled/unrestricted when calling evaluateJavascript.'));
+      return Future<String>.error(FlutterError(
+          'JavaScript mode must be enabled/unrestricted when calling evaluateJavascript.'));
     }
     if (javascriptString == null) {
-      return Future<String>.error(ArgumentError('The argument javascriptString must not be null.'));
+      return Future<String>.error(
+          ArgumentError('The argument javascriptString must not be null.'));
     }
     // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
     // https://github.com/flutter/flutter/issues/26431

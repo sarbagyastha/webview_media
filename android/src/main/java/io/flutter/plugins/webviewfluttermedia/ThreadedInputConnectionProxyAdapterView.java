@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.webviewflutter;
+package io.flutter.plugins.webviewfluttermedia;
 
 import android.os.Handler;
 import android.os.IBinder;
@@ -13,16 +13,23 @@ import android.view.inputmethod.InputConnection;
 /**
  * A fake View only exposed to InputMethodManager.
  *
- * <p>This follows a similar flow to Chromium's WebView (see
+ * <p>
+ * This follows a similar flow to Chromium's WebView (see
  * https://cs.chromium.org/chromium/src/content/public/android/java/src/org/chromium/content/browser/input/ThreadedInputConnectionProxyView.java).
- * WebView itself bounces its InputConnection around several different threads. We follow its logic
+ * WebView itself bounces its InputConnection around several different threads.
+ * We follow its logic
  * here to get the same working connection.
  *
- * <p>This exists solely to forward input creation to WebView's ThreadedInputConnectionProxyView on
+ * <p>
+ * This exists solely to forward input creation to WebView's
+ * ThreadedInputConnectionProxyView on
  * the IME thread. The way that this is created in {@link
- * InputAwareWebView#checkInputConnectionProxy} guarantees that we have a handle to
- * ThreadedInputConnectionProxyView and {@link #onCreateInputConnection} is always called on the IME
- * thread. We delegate to ThreadedInputConnectionProxyView there to get WebView's input connection.
+ * InputAwareWebView#checkInputConnectionProxy} guarantees that we have a handle
+ * to
+ * ThreadedInputConnectionProxyView and {@link #onCreateInputConnection} is
+ * always called on the IME
+ * thread. We delegate to ThreadedInputConnectionProxyView there to get
+ * WebView's input connection.
  */
 final class ThreadedInputConnectionProxyAdapterView extends View {
   final Handler imeHandler;
@@ -47,27 +54,34 @@ final class ThreadedInputConnectionProxyAdapterView extends View {
     setVisibility(VISIBLE);
   }
 
-  /** Returns whether or not this is currently asynchronously acquiring an input connection. */
+  /**
+   * Returns whether or not this is currently asynchronously acquiring an input
+   * connection.
+   */
   boolean isTriggerDelayed() {
     return triggerDelayed;
   }
 
-  /** Sets whether or not this should use its previously cached input connection. */
+  /**
+   * Sets whether or not this should use its previously cached input connection.
+   */
   void setLocked(boolean locked) {
     isLocked = locked;
   }
 
   /**
-   * This is expected to be called on the IME thread. See the setup required for this in {@link
+   * This is expected to be called on the IME thread. See the setup required for
+   * this in {@link
    * InputAwareWebView#checkInputConnectionProxy(View)}.
    *
-   * <p>Delegates to ThreadedInputConnectionProxyView to get WebView's input connection.
+   * <p>
+   * Delegates to ThreadedInputConnectionProxyView to get WebView's input
+   * connection.
    */
   @Override
   public InputConnection onCreateInputConnection(final EditorInfo outAttrs) {
     triggerDelayed = false;
-    InputConnection inputConnection =
-        (isLocked) ? cachedConnection : targetView.onCreateInputConnection(outAttrs);
+    InputConnection inputConnection = (isLocked) ? cachedConnection : targetView.onCreateInputConnection(outAttrs);
     triggerDelayed = true;
     cachedConnection = inputConnection;
     return inputConnection;
@@ -80,7 +94,8 @@ final class ThreadedInputConnectionProxyAdapterView extends View {
 
   @Override
   public boolean hasWindowFocus() {
-    // None of our views here correctly report they have window focus because of how we're embedding
+    // None of our views here correctly report they have window focus because of how
+    // we're embedding
     // the platform view inside of a virtual display.
     return true;
   }
